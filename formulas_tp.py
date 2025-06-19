@@ -53,7 +53,7 @@ def runge_kutta_4_orden_superior(f_u, t0, y0, u0, tf, h, *args):
         k4 = u[i-1] + (h * m3) / 2
         m4 = f_u(t[i-1] + h, y[i-1] + (h * k3), k4, *args)
 
-        # Actualizar y
+        # Actualizar y, u, t
         y[i] = y[i-1] + h * (k1 + 2 * k2 + 2 * k3 + k4) / 6
         u[i] = u[i-1] + h * (m1 + 2 * m2 + 2 * m3 + m4) / 6
         t[i] = t[i-1] + h
@@ -65,20 +65,3 @@ def ecuacion_curvas(t,theta, omega, r, max_G):
         return 0
     
     return (- max_G/ r) * np.sin(theta)
-
-"""
-def ecuacion_rectas(v0, vf, h):  
-    # Aquí el cálculo de la aceleración es usando las diferencias en la velocidad.
-    aceleracion = (v0 - vf) / h
-    
-    # Para verificar si la aceleración cambia entre pasos
-    print(f"Velocidad actual: {v0}, Velocidad previa: {vf}")
-    print(f"Aceleración calculada: {aceleracion}")
-
-    # Fuerza F(t) = m * aceleración
-    force = M * aceleracion
-    print(f"Fuerza calculada: {force}")
-
-    return force / M ## Solo deberia devolver "aceleracion"???
-"""
-
