@@ -1,6 +1,6 @@
-from formulas_tp import *
 import numpy as np
 import matplotlib.pyplot as plt
+
 # Constantes físicas
 g = 9.81
 g_max = 6 * g
@@ -73,8 +73,8 @@ def simular_tramo_curva(estado_inicial, radio, angulo_objetivo, dt):
 F_max = g_max * M
 
 # Datos deseados para la primer recta
-x_ini, y_ini = 2, 14
-x_fin, y_fin = 66, 10
+x_ini, y_ini = 2, 12
+x_fin, y_fin = 82, 12
 
 dx = x_fin - x_ini
 dy = y_fin - y_ini
@@ -82,7 +82,7 @@ theta_1 = np.arctan2(dy, dx)
 dist_1 = np.sqrt(dx**2 + dy**2)
 
 # Distancias y curvas para la trayectoria completa
-distancias_rectas = [dist_1, 15, 35]  # el primero calculado para llegar a (66,10)
+distancias_rectas = [dist_1, 15, 35]  # el primero calculado para llegar a (82,12)
 curvas = [
     (10, np.pi/2),  # radio 10 m, giro 90°
     (15, np.pi/4)    # radio 15 m, giro 45°
