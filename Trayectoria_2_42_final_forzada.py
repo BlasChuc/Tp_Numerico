@@ -13,11 +13,8 @@ def tramo_recto(t, estado, F):
     x, y, v, theta = estado
 
     # Aplicación más realista de fuerza: disminuye con la velocidad
-    # Por ejemplo: F = F_max * exp(-v/v_ref)
     v_ref = 60  # velocidad de referencia para caída exponencial
     F_real = F * np.exp(-v / v_ref)
-
-    # Limitar fuerza dentro del rango físico
     F_real = np.clip(F_real, -F_max, F_max)
 
     a = F_real / M
@@ -30,12 +27,9 @@ def tramo_recto(t, estado, F):
 # --- CURVAS ---
 def tramo_curva(t, estado, radio, v_objetivo):
     x, y, v, theta = estado
-    a_lat_max = g_max
     a_lat = v**2 / radio
-
-    if a_lat > a_lat_max:
-        v = np.sqrt(a_lat_max * radio)
-        a_lat = a_lat_max
+    if a_lat > g_max:
+        v = np.sqrt(g_max * radio)
 
     omega = v / radio
     dx = v * np.cos(theta)
@@ -52,27 +46,35 @@ def rk4(f, t, estado, h, *args):
     k4 = f(t + h, estado + h*k3, *args)
     return estado + (h/6)*(k1 + 2*k2 + 2*k3 + k4)
 
-# --- Simulación de tramos rectos ---
+# --- Simulación de tramos rectos con fuerza guardada ---
 def simular_tramo_recto(estado_inicial, distancia_objetivo, F, dt, t_inicial):
     estado = estado_inicial.copy()
     x_inicio, y_inicio = estado[0], estado[1]
-    xs, ys, velocidades, aceleraciones, tiempos = [], [], [], [], []
+    xs, ys, velocidades, aceleraciones, tiempos, fuerzas = [], [], [], [], [], []
     distancia_recorrida = 0.0
     t = t_inicial
 
+    if F > F_max:
+        F = F_max   
+
     while distancia_recorrida < distancia_objetivo:
+        v = estado[2]
+        F_real = F * np.exp(-v / 60)
+        F_real = np.clip(F_real, -F_max, F_max)
+
         estado = rk4(tramo_recto, t, estado, dt, F)
         xs.append(estado[0])
         ys.append(estado[1])
         velocidades.append(estado[2])
-        aceleraciones.append((F * np.exp(-estado[2]/60)) / M)
+        aceleraciones.append(F_real / M)
+        fuerzas.append(F_real)
         tiempos.append(t)
         distancia_recorrida = np.sqrt((estado[0]-x_inicio)**2 + (estado[1]-y_inicio)**2)
         t += dt
 
-    return estado, xs, ys, velocidades, aceleraciones, tiempos, t
+    return estado, xs, ys, velocidades, aceleraciones, tiempos, t, fuerzas
 
-# --- Simulación de curvas ---
+# --- Simulación de curvas (sin fuerza longitudinal) ---
 def simular_tramo_curva(estado_inicial, radio, angulo_objetivo, dt, t_inicial):
     estado = estado_inicial.copy()
     theta_inicio = estado[3]
@@ -100,7 +102,7 @@ x_fin2, y_fin2 = 90, 48
 x_ini3, y_ini3 = 89, 51
 x_fin3, y_fin3 = 36, 74  # PUNTO OBJETIVO
 
-# Cálculos
+# Cálculos geométricos
 dx = x_fin - x_ini
 dy = y_fin - y_ini
 dx2 = x_fin2 - x_ini2
@@ -108,44 +110,53 @@ dy2 = y_fin2 - y_ini2
 theta_1 = np.arctan2(dy, dx)
 dist_1 = np.sqrt(dx**2 + dy**2)
 dist_2 = np.sqrt(dx2**2 + dy2**2)
-
-distancias_rectas = [dist_1, dist_2]  # la última se calcula dinámica
+distancias_rectas = [dist_1, dist_2]
 curvas = [(9,  np.pi/2), (4, np.pi/4)]
+
+# Estado inicial: 180 km/h = 50 m/s
 estado = np.array([x_ini, y_ini, 50.0, theta_1])
 
 # Acumuladores
-xs_total, ys_total, vel_total, acc_total, tiempos_total = [], [], [], [], []
+xs_total, ys_total = [], []
+vel_total, acc_total, tiempos_total, fuerzas_total = [], [], [], []
 t_actual = 0.0
 
 # 1) Recta 1
-estado, xs, ys, vs, accs, ts, t_actual = simular_tramo_recto(estado, dist_1, F_max, dt, t_actual)
-xs_total += xs; ys_total += ys; vel_total += vs; acc_total += accs; tiempos_total += ts
+estado, xs, ys, vs, accs, ts, t_actual, fuerzas = simular_tramo_recto(estado, dist_1, 15000, dt, t_actual)
+xs_total += xs; ys_total += ys; vel_total += vs
+acc_total += accs; tiempos_total += ts; fuerzas_total += fuerzas
 
 # 2) Curva 1
 estado, xs, ys, vs, accs, ts, t_actual = simular_tramo_curva(estado, *curvas[0], dt, t_actual)
-xs_total += xs; ys_total += ys; vel_total += vs; acc_total += accs; tiempos_total += ts
+xs_total += xs; ys_total += ys; vel_total += vs
+acc_total += accs; tiempos_total += ts
+fuerzas_total += [0]*len(ts)  # sin fuerza en curva
 
 # 3) Recta 2
-estado, xs, ys, vs, accs, ts, t_actual = simular_tramo_recto(estado, dist_2, F_max, dt, t_actual)
-xs_total += xs; ys_total += ys; vel_total += vs; acc_total += accs; tiempos_total += ts
+estado, xs, ys, vs, accs, ts, t_actual, fuerzas = simular_tramo_recto(estado, dist_2, 10000, dt, t_actual)
+xs_total += xs; ys_total += ys; vel_total += vs
+acc_total += accs; tiempos_total += ts; fuerzas_total += fuerzas
 
 # 4) Curva 2
 estado, xs, ys, vs, accs, ts, t_actual = simular_tramo_curva(estado, *curvas[1], dt, t_actual)
-xs_total += xs; ys_total += ys; vel_total += vs; acc_total += accs; tiempos_total += ts
+xs_total += xs; ys_total += ys; vel_total += vs
+acc_total += accs; tiempos_total += ts
+fuerzas_total += [0]*len(ts)
 
-# 5) Recta final ajustada al objetivo
+# 5) Recta final
 objetivo = np.array([x_fin3, y_fin3])
 estado[3] = np.arctan2(objetivo[1] - estado[1], objetivo[0] - estado[0])
 distancia_final = np.linalg.norm(objetivo - estado[:2])
-estado, xs, ys, vs, accs, ts, t_actual = simular_tramo_recto(estado, distancia_final, F_max, dt, t_actual)
-xs_total += xs; ys_total += ys; vel_total += vs; acc_total += accs; tiempos_total += ts
+estado, xs, ys, vs, accs, ts, t_actual, fuerzas = simular_tramo_recto(estado, distancia_final, 18000, dt, t_actual)
+xs_total += xs; ys_total += ys; vel_total += vs
+acc_total += accs; tiempos_total += ts; fuerzas_total += fuerzas
 
-t_actual, estado[:2]  # Mostrar tiempo total y punto final alcanzado
+# Salida
 print(f"Tiempo total: {t_actual:.2f} s, Punto final alcanzado: ({estado[0]:.2f}, {estado[1]:.2f})")
-# Resultados
+
+# --- Gráficos ---
 plt.figure(figsize=(10,6))
 plt.plot(xs_total, ys_total, label="Trayectoria")
-plt.scatter([36], [74], color='red', label='Punto objetivo')
 plt.axis('equal')
 plt.grid(True)
 plt.title("Trayectoria: recta - curva - recta - curva - recta")
@@ -171,5 +182,12 @@ plt.grid(True)
 plt.tight_layout()
 plt.show()
 
-t_actual, estado[:2]  # Mostrar tiempo total y punto final alcanzado
-
+# --- Fuerza aplicada ---
+plt.figure(figsize=(10, 4))
+plt.plot(tiempos_total, fuerzas_total, color='purple')
+plt.title("Fuerza aplicada vs Tiempo")
+plt.xlabel("Tiempo (s)")
+plt.ylabel("Fuerza (N)")
+plt.grid(True)
+plt.tight_layout()
+plt.show()
