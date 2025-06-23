@@ -11,13 +11,21 @@ def ecuacion_recta(tiempo, posicion, velocidad):
 y0 = 0.0 # Posición inicial en m
 u0x = 40.0 # Velocidad inicial en m/s en el eje X
 t0 = 0.0 # Tiempo inicial
-tf = 1.6 # Tiempo final (esto implica en cuanto tiempo quiero que recorra la recta)
-h = 0.05 # Paso de integración
+tf = 2.5 # Tiempo final (esto implica en cuanto tiempo quiero que recorra la recta)
+h = 0.1 # Paso de integración
 f_u = ecuacion_recta # Es la ecuacion de F / M
-t_x, y_x, u_x = runge_kutta_4_orden_superior(f_u, t0, y0, u0x, tf, h) # En el eje X
+t_x, y_x, u_x = runge_kutta_4_orden_superior(f_u, t0, y0, u0x, tf, h, 66) # En el eje X
+
+print("Tiempo total en el eje X:", t_x)
+print("Posición final en el eje X:", y_x)
+print("Velocidad final en el eje X:", u_x)
+
 
 u0y = 2.5 # Velocidad inicial en m/s en el eje Y
-t_y, y_y, u_y = runge_kutta_4_orden_superior(f_u, t0, y0, u0y, tf, h) # En el eje Y
+t_y, y_y, u_y = runge_kutta_4_orden_superior(f_u, t0, y0, u0y, tf, h, 10) # En el eje Y
+
+print("cant elementos en el eje Y:", len(t_y))
+print("cantidad de elementos en el eje X:", len(t_x))
 
 #Graficar
 plt.figure(figsize=(12, 6))
