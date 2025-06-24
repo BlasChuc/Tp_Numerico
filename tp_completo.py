@@ -221,7 +221,7 @@ posicion_grafico[0, 2].set_xlabel("Tiempo (s)", fontsize=label_fontsize)
 posicion_grafico[0, 2].set_ylabel("Aceleración (m/s²)", fontsize=label_fontsize)
 posicion_grafico[0, 2].tick_params(labelsize=tick_fontsize)
 posicion_grafico[0, 2].grid(True)
-posicion_grafico[1, 0].legend(fontsize=10)
+posicion_grafico[0, 2].legend(fontsize=10)
 
 # Aceleración Tangencial
 posicion_grafico[1, 0].plot(tiempos_total, acc_tangencial_total, color='orange', label="Tangencial")
