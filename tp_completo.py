@@ -131,6 +131,13 @@ theta2 = angulo_entre(v2, v3)
 dist_1 = np.linalg.norm(v1)
 dist_2 = np.linalg.norm(v2)
 
+f1 = 15000
+f2 = 10000
+f3 = 18000
+
+r1 = 9
+r2 = 4
+
 # Inicialización
 estado = np.array([x_ini, y_ini, 50.0, np.arctan2(y_fin - y_ini, x_fin - x_ini)])
 t_actual = 0.0
@@ -143,14 +150,14 @@ acc_rectas, acc_curvas = [], []
 tiempos_rectas, tiempos_curvas = [], []
 
 # Recta inicial
-estado, xs, ys, vs, accs, fuerzas, ts, t_actual, acc_tangencial, acc_centripeta = simular_tramo_recto(estado, dist_1, 15000, dt, t_actual)
+estado, xs, ys, vs, accs, fuerzas, ts, t_actual, acc_tangencial, acc_centripeta = simular_tramo_recto(estado, dist_1, f1, dt, t_actual)
 xs_total += xs; ys_total += ys; vel_total += vs
 acc_total += accs; fuerzas_total += fuerzas; tiempos_total += ts
 acc_tangencial_total += acc_tangencial; acc_centripeta_total += acc_centripeta
 acc_rectas += accs; tiempos_rectas += ts
 
 # Curva 1
-estado, xs, ys, vs, accs, fuerzas, ts, t_actual, acc_tangencial, acc_centripeta = simular_tramo_curva(estado, 9, theta1, dt, t_actual)
+estado, xs, ys, vs, accs, fuerzas, ts, t_actual, acc_tangencial, acc_centripeta = simular_tramo_curva(estado, r1, theta1, dt, t_actual)
 xs_total += xs; ys_total += ys; vel_total += vs
 acc_total += accs; fuerzas_total += fuerzas; tiempos_total += ts
 acc_tangencial_total += acc_tangencial; acc_centripeta_total += acc_centripeta
@@ -158,14 +165,14 @@ acc_curvas += accs; tiempos_curvas += ts
 estado[3] = np.arctan2(y_fin2 - y_ini2, x_fin2 - x_ini2)
 
 # Recta 2
-estado, xs, ys, vs, accs, fuerzas, ts, t_actual, acc_tangencial, acc_centripeta = simular_tramo_recto(estado, dist_2, 10000, dt, t_actual)
+estado, xs, ys, vs, accs, fuerzas, ts, t_actual, acc_tangencial, acc_centripeta = simular_tramo_recto(estado, dist_2, f2, dt, t_actual)
 xs_total += xs; ys_total += ys; vel_total += vs
 acc_total += accs; fuerzas_total += fuerzas; tiempos_total += ts
 acc_tangencial_total += acc_tangencial; acc_centripeta_total += acc_centripeta
 acc_rectas += accs; tiempos_rectas += ts
 
 # Curva 2
-estado, xs, ys, vs, accs, fuerzas, ts, t_actual, acc_tangencial, acc_centripeta = simular_tramo_curva(estado, 4, theta2, dt, t_actual)
+estado, xs, ys, vs, accs, fuerzas, ts, t_actual, acc_tangencial, acc_centripeta = simular_tramo_curva(estado, r2, theta2, dt, t_actual)
 xs_total += xs; ys_total += ys; vel_total += vs
 acc_total += accs; fuerzas_total += fuerzas; tiempos_total += ts
 acc_tangencial_total += acc_tangencial; acc_centripeta_total += acc_centripeta
@@ -175,7 +182,7 @@ estado[3] = np.arctan2(y_fin3 - estado[1], x_fin3 - estado[0])
 distancia_final = np.linalg.norm([x_fin3 - estado[0], y_fin3 - estado[1]])
 
 # Recta final
-estado, xs, ys, vs, accs, fuerzas, ts, t_actual, acc_tangencial, acc_centripeta = simular_tramo_recto(estado, distancia_final, 18000, dt, t_actual)
+estado, xs, ys, vs, accs, fuerzas, ts, t_actual, acc_tangencial, acc_centripeta = simular_tramo_recto(estado, distancia_final, f3, dt, t_actual)
 xs_total += xs; ys_total += ys; vel_total += vs
 acc_total += accs; fuerzas_total += fuerzas; tiempos_total += ts
 acc_tangencial_total += acc_tangencial; acc_centripeta_total += acc_centripeta

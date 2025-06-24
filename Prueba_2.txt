@@ -1,0 +1,23 @@
+x_ini, y_ini = 2, 14
+x_fin, y_fin = 75, 9
+x_ini2, y_ini2 = 88, 19
+x_fin2, y_fin2 = 98, 50
+x_ini3, y_ini3 = 89, 51
+x_fin3, y_fin3 = 37, 74
+
+v1 = vector((x_ini, y_ini), (x_fin, y_fin))
+v2 = vector((x_ini2, y_ini2), (x_fin2, y_fin2))
+v3 = vector((x_ini3, y_ini3), (x_fin3, y_fin3))
+
+theta1 = angulo_entre(v1, v2)
+theta2 = angulo_entre(v2, v3)
+
+dist_1 = np.linalg.norm(v1)
+dist_2 = np.linalg.norm(v2)
+
+f1 = 30000
+f2 = 15000
+f3 = 40000
+
+r1 = 8
+r2 = 4
