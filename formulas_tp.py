@@ -76,6 +76,8 @@ def ecuacion_curvas(tiempo, posicion, velocidad, *args):
     
     return (- g/ r) * np.sin(theta)
 
+def calcular_velocidad_resultante(vx, vy):
+     return np.sqrt(vx**2 + vy**2)
 
 def runge_kutta_4_orden_superior_2d(f, t0, x0, y0, vx0, vy0, tf, h, dist_lim, *args):
     t = t0
@@ -166,7 +168,6 @@ def runge_kutta_4_orden_superior_2d_no_itera(f, t0, x0, y0, vx0, vy0, h, *args):
     return x0, y0, vx0, vy0, t0
 
 def simular_tramo_recto(t0, x0, y0, vx0, vy0, tf, h, dist_lim, *args):
-
     t = t0
     xs, ys = [x0], [y0]
     vxs, vys = [vx0], [vy0]
@@ -174,10 +175,7 @@ def simular_tramo_recto(t0, x0, y0, vx0, vy0, tf, h, dist_lim, *args):
     x, y = x0, y0
     vx, vy = vx0, vy0
 
-    print(np.sqrt(x0**2 + y0**2))
-
     while t < tf and abs(np.sqrt((x-x0)**2 + (y-y0)**2)) < dist_lim:
-        print(f"t: {t}, x: {x}, y: {y}, vx: {vx}, vy: {vy}")
         x, y, vx, vy, t = runge_kutta_4_orden_superior_2d_no_itera(ecuacion_recta, t, x, y, vx, vy, h, *args)
         xs.append(x)
         ys.append(y)
@@ -207,7 +205,7 @@ def simular_tramo_curvo(t0, x0, y0, vx0, vy0, tf, h, *args):
 
         v = calcular_velocidad_resultante(vx, vy)
         omega = v / r
-        theta = h*cont*omega 
+        theta = h * cont * omega 
         a_lat = v**2 / r
         angulo_girado = abs(theta_objetivo - theta)
 
@@ -223,6 +221,3 @@ def simular_tramo_curvo(t0, x0, y0, vx0, vy0, tf, h, *args):
         nuevos_args = (theta, r, g)
 
     return xs, ys, vxs, vys, t
-
-def calcular_velocidad_resultante(vx, vy):
-     return np.sqrt(vx**2 + vy**2)
