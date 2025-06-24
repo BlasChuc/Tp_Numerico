@@ -215,7 +215,8 @@ posicion_grafico[0, 1].tick_params(labelsize=tick_fontsize)
 posicion_grafico[0, 1].grid(True)
 
 # Aceleración total
-posicion_grafico[0, 2].plot(tiempos_total, acc_total, color='red')
+posicion_grafico[0, 2].plot(tiempos_total, acc_total, color='red', label="Aceleración")
+posicion_grafico[0, 2].axhline(y=g_max, color='red', linestyle='--', label='Límite 6g')
 posicion_grafico[0, 2].set_title("Aceleración total", fontsize=titulo_fontsize)
 posicion_grafico[0, 2].set_xlabel("Tiempo (s)", fontsize=label_fontsize)
 posicion_grafico[0, 2].set_ylabel("Aceleración (m/s²)", fontsize=label_fontsize)
