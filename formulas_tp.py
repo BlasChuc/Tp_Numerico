@@ -174,7 +174,10 @@ def simular_tramo_recto(t0, x0, y0, vx0, vy0, tf, h, dist_lim, *args):
     x, y = x0, y0
     vx, vy = vx0, vy0
 
-    while t < tf and np.sqrt(x**2 + y**2) < dist_lim:
+    print(np.sqrt(x0**2 + y0**2))
+
+    while t < tf and abs(np.sqrt((x-x0)**2 + (y-y0)**2)) < dist_lim:
+        print(f"t: {t}, x: {x}, y: {y}, vx: {vx}, vy: {vy}")
         x, y, vx, vy, t = runge_kutta_4_orden_superior_2d_no_itera(ecuacion_recta, t, x, y, vx, vy, h, *args)
         xs.append(x)
         ys.append(y)
@@ -183,7 +186,7 @@ def simular_tramo_recto(t0, x0, y0, vx0, vy0, tf, h, dist_lim, *args):
 
     return xs, ys, vxs, vys, t
 
-def simular_tramo_curvo(t0, x0, y0, vx0, vy0, tf, h, dist_lim, *args):
+def simular_tramo_curvo(t0, x0, y0, vx0, vy0, tf, h, *args):
     theta_objetivo, r, g = args[0]
     angulo_girado = 0.0
 
