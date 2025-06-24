@@ -183,78 +183,72 @@ acc_rectas += accs; tiempos_rectas += ts
 
 # Imprimir tiempo total de simulación
 print(f"\nTiempo total: {t_actual:.2f} s")
+# Gráficos reorganizados (2 filas × 3 columnas)
+fig, posicion_grafico = plt.subplots(2, 3, figsize=(20, 10))
+titulo_fontsize = 14
+label_fontsize = 12
+tick_fontsize = 11
 
-# Gráficos
-fig, posicion_grafico = plt.subplots(2, 4, figsize=(24, 10)) 
-
-# Trayectoria sin fondo
-posicion_grafico[0, 0].plot(xs_total, ys_total, label="Trayectoria", color='black')
-posicion_grafico[0, 0].set_title("Trayectoria")
+# Trayectoria sobre pista
+posicion_grafico[0, 0].imshow(img, extent=[0, 100, 0, 80], aspect='auto', zorder=0)
+posicion_grafico[0, 0].plot(xs_total, ys_total, color='black', linewidth=2, zorder=1)
+posicion_grafico[0, 0].set_title("Trayectoria sobre pista", fontsize=titulo_fontsize)
+posicion_grafico[0, 0].set_xlabel("X (m)", fontsize=label_fontsize)
+posicion_grafico[0, 0].set_ylabel("Y (m)", fontsize=label_fontsize)
+posicion_grafico[0, 0].tick_params(labelsize=tick_fontsize)
 posicion_grafico[0, 0].axis('equal')
 posicion_grafico[0, 0].grid(True)
-posicion_grafico[0, 0].set_xlabel("X (m)")
-posicion_grafico[0, 0].set_ylabel("Y (m)")
-posicion_grafico[0, 0].legend()
-
-# Trayectoria con fondo
-posicion_grafico[0, 1].imshow(img, extent=[0, 100, 0, 80], aspect='auto', zorder=0)
-posicion_grafico[0, 1].plot(xs_total, ys_total, color='black', linewidth=2, zorder=1)
-posicion_grafico[0, 1].set_title("Trayectoria sobre pista")
-posicion_grafico[0, 1].axis('equal')
-posicion_grafico[0, 1].grid(True)
-posicion_grafico[0, 1].set_xlabel("X (m)")
-posicion_grafico[0, 1].set_ylabel("Y (m)")
 
 # Velocidad vs Tiempo
-posicion_grafico[0, 2].plot(tiempos_total, vel_total, color='blue')
-posicion_grafico[0, 2].set_title("Velocidad vs Tiempo")
-posicion_grafico[0, 2].set_xlabel("Tiempo (s)")
-posicion_grafico[0, 2].set_ylabel("Velocidad (m/s)")
-posicion_grafico[0, 2].grid(True)
+posicion_grafico[0, 1].plot(tiempos_total, vel_total, color='blue')
+posicion_grafico[0, 1].set_title("Velocidad vs Tiempo", fontsize=titulo_fontsize)
+posicion_grafico[0, 1].set_xlabel("Tiempo (s)", fontsize=label_fontsize)
+posicion_grafico[0, 1].set_ylabel("Velocidad (m/s)", fontsize=label_fontsize)
+posicion_grafico[0, 1].tick_params(labelsize=tick_fontsize)
+posicion_grafico[0, 1].grid(True)
 
 # Aceleración total
-posicion_grafico[0, 3].plot(tiempos_total, acc_total, color='red')
-posicion_grafico[0, 3].set_title("Aceleración total")
-posicion_grafico[0, 3].set_xlabel("Tiempo (s)")
-posicion_grafico[0, 3].set_ylabel("Aceleración (m/s²)")
-posicion_grafico[0, 3].grid(True)
+posicion_grafico[0, 2].plot(tiempos_total, acc_total, color='red')
+posicion_grafico[0, 2].set_title("Aceleración total", fontsize=titulo_fontsize)
+posicion_grafico[0, 2].set_xlabel("Tiempo (s)", fontsize=label_fontsize)
+posicion_grafico[0, 2].set_ylabel("Aceleración (m/s²)", fontsize=label_fontsize)
+posicion_grafico[0, 2].tick_params(labelsize=tick_fontsize)
+posicion_grafico[0, 2].grid(True)
 
-# Aceleración tangencial
+# Aceleración Tangencial
 posicion_grafico[1, 0].plot(tiempos_total, acc_tangencial_total, color='orange', label="Tangencial")
 posicion_grafico[1, 0].axhline(y=g_max, color='red', linestyle='--', label='Límite 6g')
 posicion_grafico[1, 0].axhline(y=-g_max, color='red', linestyle='--')
-posicion_grafico[1, 0].set_title("Aceleración Tangencial")
-posicion_grafico[1, 0].set_xlabel("Tiempo (s)")
-posicion_grafico[1, 0].set_ylabel("aₜ (m/s²)")
+posicion_grafico[1, 0].set_title("Aceleración Tangencial", fontsize=titulo_fontsize)
+posicion_grafico[1, 0].set_xlabel("Tiempo (s)", fontsize=label_fontsize)
+posicion_grafico[1, 0].set_ylabel("aₜ (m/s²)", fontsize=label_fontsize)
+posicion_grafico[1, 0].tick_params(labelsize=tick_fontsize)
 posicion_grafico[1, 0].grid(True)
-posicion_grafico[1, 0].legend()
+posicion_grafico[1, 0].legend(fontsize=10)
 
-# Aceleración centrípeta
+# Aceleración Centrípeta
 posicion_grafico[1, 1].plot(tiempos_total, acc_centripeta_total, color='green', label="Centrípeta")
 posicion_grafico[1, 1].axhline(y=g_max, color='red', linestyle='--', label='Límite 6g')
-posicion_grafico[1, 1].set_title("Aceleración Centrípeta")
-posicion_grafico[1, 1].set_xlabel("Tiempo (s)")
-posicion_grafico[1, 1].set_ylabel("a꜀ (m/s²)")
+posicion_grafico[1, 1].set_title("Aceleración Centrípeta", fontsize=titulo_fontsize)
+posicion_grafico[1, 1].set_xlabel("Tiempo (s)", fontsize=label_fontsize)
+posicion_grafico[1, 1].set_ylabel("a꜀ (m/s²)", fontsize=label_fontsize)
+posicion_grafico[1, 1].tick_params(labelsize=tick_fontsize)
 posicion_grafico[1, 1].grid(True)
-posicion_grafico[1, 1].legend()
+posicion_grafico[1, 1].legend(fontsize=10)
 
-# Aceleraciones por tramo
-posicion_grafico[1, 2].plot(tiempos_rectas, acc_rectas, label="Rectas", color='blue')
-posicion_grafico[1, 2].plot(tiempos_curvas, acc_curvas, label="Curvas", color='green')
-posicion_grafico[1, 2].axhline(y=g_max, color='red', linestyle='--', label='Límite 6g')
-posicion_grafico[1, 2].axhline(y=-g_max, color='red', linestyle='--')
-posicion_grafico[1, 2].set_title("Aceleraciones por tramo")
-posicion_grafico[1, 2].set_xlabel("Tiempo (s)")
-posicion_grafico[1, 2].set_ylabel("Aceleración (m/s²)")
+# Fuerza aplicada
+posicion_grafico[1, 2].plot(tiempos_total, fuerzas_total, color='purple')
+posicion_grafico[1, 2].set_title("Fuerza aplicada", fontsize=titulo_fontsize)
+posicion_grafico[1, 2].set_xlabel("Tiempo (s)", fontsize=label_fontsize)
+posicion_grafico[1, 2].set_ylabel("Fuerza (N)", fontsize=label_fontsize)
+posicion_grafico[1, 2].tick_params(labelsize=tick_fontsize)
 posicion_grafico[1, 2].grid(True)
-posicion_grafico[1, 2].legend()
 
-# Fuerza
-posicion_grafico[1, 3].plot(tiempos_total, fuerzas_total, color='purple')
-posicion_grafico[1, 3].set_title("Fuerza aplicada")
-posicion_grafico[1, 3].set_xlabel("Tiempo (s)")
-posicion_grafico[1, 3].set_ylabel("Fuerza (N)")
-posicion_grafico[1, 3].grid(True)
+# Ajustes finales
+plt.tight_layout(pad=2.5)
+plt.subplots_adjust(top=0.92, bottom=0.08, left=0.05, right=0.97, hspace=0.4, wspace=0.3)
+fig.suptitle("Análisis de velocidad, aceleración y trayectoria", fontsize=16)
 
-plt.tight_layout()
 plt.show()
+
+
