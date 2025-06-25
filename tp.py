@@ -18,7 +18,7 @@ def vector(p1, p2):
 def angulo_entre(v1, v2):
     v1_u = v1 / np.linalg.norm(v1)
     v2_u = v2 / np.linalg.norm(v2)
-    dot = np.clip(np.dot(v1_u, v2_u), -1.0, 1.0)
+    dot = np.dot(v1_u, v2_u)
     return np.arccos(dot)
 
 def rk4(f, t, estado, h, *args):
@@ -31,9 +31,7 @@ def rk4(f, t, estado, h, *args):
 def tramo_recto(t, estado, F):
     x, y, v, theta = estado
     v_ref = 60
-    F_real = F * np.exp(-v / v_ref)
-    a_real = np.clip(F_real / M, -g_max, g_max)
-    F_real = a_real * M
+    a_real = F / M
     dx = v * np.cos(theta)
     dy = v * np.sin(theta)
     dv = a_real
@@ -42,10 +40,9 @@ def tramo_recto(t, estado, F):
 
 def tramo_curva(t, estado, radio, _):
     x, y, v, theta = estado
-    velocidad_segura = min(v, np.sqrt(g_max * radio))
-    omega = velocidad_segura / radio
-    dx = velocidad_segura * np.cos(theta)
-    dy = velocidad_segura * np.sin(theta)
+    omega = v / radio
+    dx = v * np.cos(theta)
+    dy = v * np.sin(theta)
     dv = 0
     dtheta = omega
     return np.array([dx, dy, dv, dtheta])
@@ -67,7 +64,6 @@ def simular_tramo_recto(estado_inicial, distancia_objetivo, F, dt, t_inicial):
         velocidades.append(estado[2])
 
         acc_tangencial = (estado[2] - estado_anterior[2]) / dt
-        acc_tangencial = np.clip(acc_tangencial, -g_max, g_max)
         acc_centripeta = 0
 
         aceleraciones.append(acc_tangencial)
@@ -75,7 +71,6 @@ def simular_tramo_recto(estado_inicial, distancia_objetivo, F, dt, t_inicial):
         acc_centripeta_total.append(acc_centripeta)
 
         f_real = acc_tangencial * M
-        f_real = np.clip(f_real, -F_max, F_max)
         fuerzas.append(f_real)
         tiempos.append(t)
 
@@ -99,8 +94,7 @@ def simular_tramo_curva(estado_inicial, radio, angulo_objetivo, dt, t_inicial):
         velocidades.append(estado[2])
 
         acc_tangencial = 0
-        velocidad_segura = min(estado[2], np.sqrt(g_max * radio))
-        acc_centripeta = velocidad_segura ** 2 / radio
+        acc_centripeta = estado[2] ** 2 / radio
 
         aceleraciones.append(acc_centripeta)
         acc_tangencial_total.append(acc_tangencial)
@@ -131,8 +125,17 @@ theta2 = angulo_entre(v2, v3)
 dist_1 = np.linalg.norm(v1)
 dist_2 = np.linalg.norm(v2)
 
+f1 = -10180
+f2 = -4355
+f3 = F_max
+
+r1 = 9
+r2 = 4
+
+v0 = 50.0
+
 # Inicialización
-estado = np.array([x_ini, y_ini, 50.0, np.arctan2(y_fin - y_ini, x_fin - x_ini)])
+estado = np.array([x_ini, y_ini, v0, np.arctan2(y_fin - y_ini, x_fin - x_ini)])
 t_actual = 0.0
 
 # Sumadores de diferentes parametros 
@@ -143,14 +146,14 @@ acc_rectas, acc_curvas = [], []
 tiempos_rectas, tiempos_curvas = [], []
 
 # Recta inicial
-estado, xs, ys, vs, accs, fuerzas, ts, t_actual, acc_tangencial, acc_centripeta = simular_tramo_recto(estado, dist_1, 15000, dt, t_actual)
+estado, xs, ys, vs, accs, fuerzas, ts, t_actual, acc_tangencial, acc_centripeta = simular_tramo_recto(estado, dist_1, f1, dt, t_actual)
 xs_total += xs; ys_total += ys; vel_total += vs
 acc_total += accs; fuerzas_total += fuerzas; tiempos_total += ts
 acc_tangencial_total += acc_tangencial; acc_centripeta_total += acc_centripeta
 acc_rectas += accs; tiempos_rectas += ts
 
 # Curva 1
-estado, xs, ys, vs, accs, fuerzas, ts, t_actual, acc_tangencial, acc_centripeta = simular_tramo_curva(estado, 9, theta1, dt, t_actual)
+estado, xs, ys, vs, accs, fuerzas, ts, t_actual, acc_tangencial, acc_centripeta = simular_tramo_curva(estado, r1, theta1, dt, t_actual)
 xs_total += xs; ys_total += ys; vel_total += vs
 acc_total += accs; fuerzas_total += fuerzas; tiempos_total += ts
 acc_tangencial_total += acc_tangencial; acc_centripeta_total += acc_centripeta
@@ -158,14 +161,14 @@ acc_curvas += accs; tiempos_curvas += ts
 estado[3] = np.arctan2(y_fin2 - y_ini2, x_fin2 - x_ini2)
 
 # Recta 2
-estado, xs, ys, vs, accs, fuerzas, ts, t_actual, acc_tangencial, acc_centripeta = simular_tramo_recto(estado, dist_2, 10000, dt, t_actual)
+estado, xs, ys, vs, accs, fuerzas, ts, t_actual, acc_tangencial, acc_centripeta = simular_tramo_recto(estado, dist_2, f2, dt, t_actual)
 xs_total += xs; ys_total += ys; vel_total += vs
 acc_total += accs; fuerzas_total += fuerzas; tiempos_total += ts
 acc_tangencial_total += acc_tangencial; acc_centripeta_total += acc_centripeta
 acc_rectas += accs; tiempos_rectas += ts
 
 # Curva 2
-estado, xs, ys, vs, accs, fuerzas, ts, t_actual, acc_tangencial, acc_centripeta = simular_tramo_curva(estado, 4, theta2, dt, t_actual)
+estado, xs, ys, vs, accs, fuerzas, ts, t_actual, acc_tangencial, acc_centripeta = simular_tramo_curva(estado, r2, theta2, dt, t_actual)
 xs_total += xs; ys_total += ys; vel_total += vs
 acc_total += accs; fuerzas_total += fuerzas; tiempos_total += ts
 acc_tangencial_total += acc_tangencial; acc_centripeta_total += acc_centripeta
@@ -175,7 +178,7 @@ estado[3] = np.arctan2(y_fin3 - estado[1], x_fin3 - estado[0])
 distancia_final = np.linalg.norm([x_fin3 - estado[0], y_fin3 - estado[1]])
 
 # Recta final
-estado, xs, ys, vs, accs, fuerzas, ts, t_actual, acc_tangencial, acc_centripeta = simular_tramo_recto(estado, distancia_final, F_max, dt, t_actual)
+estado, xs, ys, vs, accs, fuerzas, ts, t_actual, acc_tangencial, acc_centripeta = simular_tramo_recto(estado, distancia_final, f3, dt, t_actual)
 xs_total += xs; ys_total += ys; vel_total += vs
 acc_total += accs; fuerzas_total += fuerzas; tiempos_total += ts
 acc_tangencial_total += acc_tangencial; acc_centripeta_total += acc_centripeta
@@ -208,12 +211,14 @@ posicion_grafico[0, 1].tick_params(labelsize=tick_fontsize)
 posicion_grafico[0, 1].grid(True)
 
 # Aceleración total
-posicion_grafico[0, 2].plot(tiempos_total, acc_total, color='red')
+posicion_grafico[0, 2].plot(tiempos_total, acc_total, color='red', label="Aceleración")
+posicion_grafico[0, 2].axhline(y=g_max, color='red', linestyle='--', label='Límite 6g')
 posicion_grafico[0, 2].set_title("Aceleración total", fontsize=titulo_fontsize)
 posicion_grafico[0, 2].set_xlabel("Tiempo (s)", fontsize=label_fontsize)
 posicion_grafico[0, 2].set_ylabel("Aceleración (m/s²)", fontsize=label_fontsize)
 posicion_grafico[0, 2].tick_params(labelsize=tick_fontsize)
 posicion_grafico[0, 2].grid(True)
+posicion_grafico[0, 2].legend(fontsize=10)
 
 # Aceleración Tangencial
 posicion_grafico[1, 0].plot(tiempos_total, acc_tangencial_total, color='orange', label="Tangencial")
@@ -221,7 +226,7 @@ posicion_grafico[1, 0].axhline(y=g_max, color='red', linestyle='--', label='Lím
 posicion_grafico[1, 0].axhline(y=-g_max, color='red', linestyle='--')
 posicion_grafico[1, 0].set_title("Aceleración Tangencial", fontsize=titulo_fontsize)
 posicion_grafico[1, 0].set_xlabel("Tiempo (s)", fontsize=label_fontsize)
-posicion_grafico[1, 0].set_ylabel("aₜ (m/s²)", fontsize=label_fontsize)
+posicion_grafico[1, 0].set_ylabel(r"$a_t$ (m/s$^2$)", fontsize=label_fontsize)
 posicion_grafico[1, 0].tick_params(labelsize=tick_fontsize)
 posicion_grafico[1, 0].grid(True)
 posicion_grafico[1, 0].legend(fontsize=10)
@@ -231,7 +236,7 @@ posicion_grafico[1, 1].plot(tiempos_total, acc_centripeta_total, color='green', 
 posicion_grafico[1, 1].axhline(y=g_max, color='red', linestyle='--', label='Límite 6g')
 posicion_grafico[1, 1].set_title("Aceleración Centrípeta", fontsize=titulo_fontsize)
 posicion_grafico[1, 1].set_xlabel("Tiempo (s)", fontsize=label_fontsize)
-posicion_grafico[1, 1].set_ylabel("a꜀ (m/s²)", fontsize=label_fontsize)
+posicion_grafico[1, 1].set_ylabel(r"$a_c$ (m/s$^2$)", fontsize=label_fontsize)
 posicion_grafico[1, 1].tick_params(labelsize=tick_fontsize)
 posicion_grafico[1, 1].grid(True)
 posicion_grafico[1, 1].legend(fontsize=10)
@@ -250,3 +255,5 @@ plt.subplots_adjust(top=0.92, bottom=0.08, left=0.05, right=0.97, hspace=0.4, ws
 fig.suptitle("Análisis de velocidad, aceleración y trayectoria", fontsize=16)
 
 plt.show()
+
+
