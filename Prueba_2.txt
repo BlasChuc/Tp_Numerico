@@ -15,9 +15,11 @@ theta2 = angulo_entre(v2, v3)
 dist_1 = np.linalg.norm(v1)
 dist_2 = np.linalg.norm(v2)
 
-f1 = -21000
-f2 = -4000
+f1 = -11250
+f2 = -2500
 f3 = 40000
 
 r1 = 8
 r2 = 4
+
+v0 = 50.0
